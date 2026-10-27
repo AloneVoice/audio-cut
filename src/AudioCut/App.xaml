@@ -1,0 +1,176 @@
+<Application x:Class="AudioCut.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ThemeMode="Dark"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <Color x:Key="AccentColor">#4FD1C5</Color>
+            <SolidColorBrush x:Key="Accent" Color="#4FD1C5" />
+            <SolidColorBrush x:Key="AccentHover" Color="#6FE3D8" />
+            <SolidColorBrush x:Key="AccentText" Color="#0B2A27" />
+            <SolidColorBrush x:Key="Bg" Color="#0F1116" />
+            <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#4FD1C5" Offset="0" />
+                <GradientStop Color="#7C8CF8" Offset="1" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="AccentGradientHover" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#6FE3D8" Offset="0" />
+                <GradientStop Color="#97A3FF" Offset="1" />
+            </LinearGradientBrush>
+            <RadialGradientBrush x:Key="WindowBg" Center="0.15,0" GradientOrigin="0.15,0" RadiusX="0.9" RadiusY="1.1">
+                <GradientStop Color="#172A2E" Offset="0" />
+                <GradientStop Color="#0F1116" Offset="0.65" />
+            </RadialGradientBrush>
+            <SolidColorBrush x:Key="Card" Color="#1A1D24" />
+            <SolidColorBrush x:Key="CardHover" Color="#232731" />
+            <SolidColorBrush x:Key="Line" Color="#2A2F3A" />
+            <SolidColorBrush x:Key="TextMain" Color="#ECEFF4" />
+            <SolidColorBrush x:Key="TextDim" Color="#8A93A6" />
+
+            <!-- Plain, flat icon/text button -->
+            <Style x:Key="FlatButton" TargetType="Button">
+                <Setter Property="Foreground" Value="{StaticResource TextMain}" />
+                <Setter Property="Background" Value="{StaticResource Card}" />
+                <Setter Property="BorderBrush" Value="{StaticResource Line}" />
+                <Setter Property="Padding" Value="14,8" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="b" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="1" CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="{StaticResource CardHover}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="b" Property="Opacity" Value="0.4" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Big primary call to action -->
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="Foreground" Value="{StaticResource AccentText}" />
+                <Setter Property="Background" Value="{StaticResource AccentGradient}" />
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Padding" Value="26,12" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="10" Padding="{TemplateBinding Padding}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#4FD1C5" BlurRadius="22" ShadowDepth="0" Opacity="0.35" />
+                                </Border.Effect>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="{StaticResource AccentGradientHover}" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter TargetName="b" Property="Opacity" Value="0.4" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Round play button -->
+            <Style x:Key="PlayButton" TargetType="Button">
+                <Setter Property="Foreground" Value="{StaticResource AccentText}" />
+                <Setter Property="Background" Value="{StaticResource AccentGradient}" />
+                <Setter Property="Width" Value="52" />
+                <Setter Property="Height" Value="52" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="b" Background="{TemplateBinding Background}" CornerRadius="26">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#4FD1C5" BlurRadius="22" ShadowDepth="0" Opacity="0.4" />
+                                </Border.Effect>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="{StaticResource AccentGradientHover}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Segmented choice (format picker) -->
+            <Style x:Key="Segment" TargetType="RadioButton">
+                <Setter Property="Foreground" Value="{StaticResource TextDim}" />
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="Cursor" Value="Hand" />
+                <Setter Property="Focusable" Value="False" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="b" Background="Transparent" CornerRadius="7" Padding="12,6" Margin="2">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="{StaticResource CardHover}" />
+                                    <Setter Property="Foreground" Value="{StaticResource TextMain}" />
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="b" Property="Background" Value="#2E3442" />
+                                    <Setter Property="Foreground" Value="{StaticResource TextMain}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <!-- Time entry -->
+            <Style x:Key="TimeBox" TargetType="TextBox">
+                <Setter Property="Foreground" Value="{StaticResource TextMain}" />
+                <Setter Property="CaretBrush" Value="{StaticResource Accent}" />
+                <Setter Property="SelectionBrush" Value="{StaticResource Accent}" />
+                <Setter Property="FontFamily" Value="Cascadia Mono, Consolas" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="Width" Value="128" />
+                <Setter Property="TextAlignment" Value="Center" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TextBox">
+                            <Border x:Name="b" Background="{StaticResource Card}" BorderBrush="{StaticResource Line}" BorderThickness="1"
+                                    CornerRadius="8" Padding="6,6">
+                                <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="b" Property="BorderBrush" Value="#3A4150" />
+                                </Trigger>
+                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                    <Setter TargetName="b" Property="BorderBrush" Value="{StaticResource Accent}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

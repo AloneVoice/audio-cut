@@ -1,0 +1,294 @@
+<Window x:Class="AudioCut.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:AudioCut"
+        Title="AudioCut" Width="1120" Height="700" MinWidth="860" MinHeight="540"
+        WindowStartupLocation="CenterScreen" Icon="app.ico"
+        Background="{StaticResource WindowBg}" Foreground="{StaticResource TextMain}"
+        FontFamily="Segoe UI" FontSize="13"
+        AllowDrop="True" UseLayoutRounding="True">
+    <Window.Resources>
+        <FontFamily x:Key="Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+    </Window.Resources>
+
+    <Grid>
+        <Grid Margin="24,16,24,14">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Grid Grid.Row="0" Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border Width="40" Height="40" CornerRadius="11" Background="{StaticResource AccentGradient}" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE8C6;" FontFamily="{StaticResource Icons}" FontSize="18" Foreground="{StaticResource AccentText}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Grid.Column="1" Margin="12,0,12,0" VerticalAlignment="Center">
+                    <TextBlock x:Name="FileTitle" Text="AudioCut" FontSize="17" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="FileInfo" Text="Wytnij fragment dźwięku z dowolnego pliku audio lub wideo"
+                               Foreground="{StaticResource TextDim}" FontSize="12" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <Button x:Name="OpenButton" Grid.Column="2" Style="{StaticResource FlatButton}" Click="Open_Click"
+                        Visibility="Collapsed" ToolTip="Otwórz inny plik (Ctrl+O)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE8E5;" FontFamily="{StaticResource Icons}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                        <TextBlock Text="Otwórz inny plik" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <!-- Empty state: drop zone -->
+            <Border x:Name="DropZone" Grid.Row="1" CornerRadius="16" Background="#B31A1D24" Cursor="Hand"
+                    MouseLeftButtonUp="DropZone_Click">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="0.92" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Grid>
+                    <Rectangle Margin="14" RadiusX="12" RadiusY="12" Stroke="#3A4150" StrokeThickness="2" StrokeDashArray="5 4" />
+                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Border Width="92" Height="92" CornerRadius="46" Background="{StaticResource AccentGradient}" HorizontalAlignment="Center">
+                            <Border.Effect>
+                                <DropShadowEffect Color="#4FD1C5" BlurRadius="40" ShadowDepth="0" Opacity="0.45" />
+                            </Border.Effect>
+                            <TextBlock Text="&#xE8D6;" FontFamily="{StaticResource Icons}" FontSize="38" Foreground="{StaticResource AccentText}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <TextBlock Text="Przeciągnij tutaj plik audio lub wideo" FontSize="22" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center" Margin="0,22,0,6" />
+                        <TextBlock Text="albo kliknij, żeby wybrać z dysku" FontSize="14" Foreground="{StaticResource TextDim}"
+                                   HorizontalAlignment="Center" />
+                        <TextBlock Text="MP4 · MKV · MOV · AVI · WEBM · MP3 · WAV · M4A · FLAC · OGG · i wiele innych"
+                                   FontSize="12" Foreground="#5F687A" HorizontalAlignment="Center" Margin="0,26,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Loading state -->
+            <StackPanel x:Name="LoadingPanel" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Collapsed">
+                <ProgressBar IsIndeterminate="True" Width="240" Height="4" Foreground="{StaticResource Accent}" />
+                <TextBlock x:Name="LoadingText" Text="Otwieram plik…" Foreground="{StaticResource TextDim}" HorizontalAlignment="Center" Margin="0,12,0,0" />
+            </StackPanel>
+
+            <!-- Editor -->
+            <Grid x:Name="Editor" Grid.Row="1" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- hint + zoom -->
+                <Grid Margin="0,0,0,8">
+                    <StackPanel Orientation="Horizontal">
+                        <Button x:Name="UndoButton" Style="{StaticResource FlatButton}" Padding="10,6" Click="Undo_Click" ToolTip="Cofnij (Ctrl+Z)" IsEnabled="False">
+                            <TextBlock Text="&#xE7A7;" FontFamily="{StaticResource Icons}" />
+                        </Button>
+                        <Button x:Name="RedoButton" Style="{StaticResource FlatButton}" Padding="10,6" Margin="6,0,0,0" Click="Redo_Click" ToolTip="Ponów (Ctrl+Y)" IsEnabled="False">
+                            <TextBlock Text="&#xE7A6;" FontFamily="{StaticResource Icons}" />
+                        </Button>
+                        <Rectangle Width="1" Fill="{StaticResource Line}" Margin="12,4" />
+                        <Button x:Name="TrimButton" Style="{StaticResource FlatButton}" Padding="12,6" Click="Trim_Click"
+                                ToolTip="Zostaw tylko zaznaczony fragment, resztę odetnij (T)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE7A8;" FontFamily="{StaticResource Icons}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Przytnij do zaznaczenia" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="DeleteButton" Style="{StaticResource FlatButton}" Padding="12,6" Margin="6,0,0,0" Click="Delete_Click"
+                                ToolTip="Wytnij zaznaczony fragment ze środka i sklej resztę (Delete)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE8C6;" FontFamily="{StaticResource Icons}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Text="Usuń zaznaczenie" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource FlatButton}" Padding="10,6" Click="ZoomOut_Click" ToolTip="Oddal (kółko myszy)">
+                            <TextBlock Text="&#xE71F;" FontFamily="{StaticResource Icons}" />
+                        </Button>
+                        <Button Style="{StaticResource FlatButton}" Padding="10,6" Margin="6,0,0,0" Click="ZoomIn_Click" ToolTip="Przybliż (kółko myszy)">
+                            <TextBlock Text="&#xE8A3;" FontFamily="{StaticResource Icons}" />
+                        </Button>
+                        <Button Style="{StaticResource FlatButton}" Padding="10,6" Margin="6,0,0,0" Click="ZoomSel_Click" ToolTip="Pokaż zaznaczenie (Z)">
+                            <TextBlock Text="Do zaznaczenia" />
+                        </Button>
+                        <Button Style="{StaticResource FlatButton}" Padding="10,6" Margin="6,0,0,0" Click="ZoomAll_Click" ToolTip="Pokaż całość (A)">
+                            <TextBlock Text="Całość" />
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <Border Grid.Row="1" CornerRadius="12" ClipToBounds="True" BorderBrush="{StaticResource Line}" BorderThickness="1" MinHeight="160">
+                    <local:WaveformView x:Name="Wave" />
+                </Border>
+
+                <ScrollBar x:Name="ViewScroll" Grid.Row="2" Orientation="Horizontal" Margin="0,6,0,0" Height="12"
+                           Scroll="ViewScroll_Scroll" />
+
+                <!-- transport + range -->
+                <Grid Grid.Row="3" Margin="0,14,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal">
+                        <Button Style="{StaticResource FlatButton}" Width="40" Height="40" Padding="0" Click="ToSelStart_Click"
+                                ToolTip="Na początek zaznaczenia (Home)" VerticalAlignment="Center">
+                            <Button.Resources>
+                                <Style TargetType="Border"><Setter Property="CornerRadius" Value="20" /></Style>
+                            </Button.Resources>
+                            <TextBlock Text="&#xE892;" FontFamily="{StaticResource Icons}" FontSize="14" />
+                        </Button>
+                        <Button x:Name="PlayButton" Style="{StaticResource PlayButton}" Margin="10,0,0,0" Click="Play_Click" ToolTip="Odtwórz zaznaczenie (Spacja)">
+                            <TextBlock x:Name="PlayIcon" Text="&#xE768;" FontFamily="{StaticResource Icons}" FontSize="20" Margin="2,0,0,0" />
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="PositionText" Text="00:00.000" FontFamily="Cascadia Mono, Consolas" FontSize="20" />
+                        <TextBlock x:Name="DurationText" Text="/ 00:00.000" Foreground="{StaticResource TextDim}" FontSize="12" />
+                    </StackPanel>
+
+                    <!-- volume -->
+                    <StackPanel Grid.Column="2" Margin="28,0,12,0" VerticalAlignment="Center" HorizontalAlignment="Left" MinWidth="200">
+                        <TextBlock Foreground="{StaticResource TextDim}" FontSize="10.5" FontWeight="SemiBold" Margin="2,0,0,2">
+                            <Run Text="GŁOŚNOŚĆ" /><Run x:Name="ClipWarn" Text="  · może przesterować" Foreground="#FF7A86" />
+                        </TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="VolumeIconButton" Style="{StaticResource FlatButton}" Background="Transparent" BorderBrush="Transparent"
+                                    Padding="6,4" Click="VolumeReset_Click" ToolTip="Przywróć 100%">
+                                <TextBlock x:Name="VolumeIcon" Text="&#xE995;" FontFamily="{StaticResource Icons}" FontSize="16" />
+                            </Button>
+                            <Slider x:Name="VolumeSlider" Width="150" Minimum="0" Maximum="300" Value="100" Margin="4,0,0,0"
+                                    VerticalAlignment="Center" IsMoveToPointEnabled="True" Focusable="False"
+                                    SmallChange="5" LargeChange="10" TickFrequency="5" IsSnapToTickEnabled="True"
+                                    ValueChanged="Volume_Changed" ToolTip="Głośność odsłuchu i zapisanego pliku" />
+                            <TextBlock x:Name="VolumeText" Text="100%" Width="44" Margin="8,0,0,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="POCZĄTEK" Foreground="{StaticResource TextDim}" FontSize="10.5" FontWeight="SemiBold" Margin="2,0,0,4" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="StartBox" Style="{StaticResource TimeBox}" KeyDown="TimeBox_KeyDown" LostKeyboardFocus="TimeBox_LostFocus" />
+                                <Button Style="{StaticResource FlatButton}" Padding="10,9" Margin="6,0,0,0" Click="SetStart_Click"
+                                        ToolTip="Ustaw początek tam, gdzie jest odtwarzanie (I)">
+                                    <Path Data="M0,0 L11,0 L5.5,6 Z M4.75,5 L6.25,5 L6.25,16 L4.75,16 Z" Fill="{StaticResource TextMain}" Width="11" Height="16" Stretch="None" />
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                        <TextBlock Text="&#xE72A;" FontFamily="{StaticResource Icons}" Foreground="{StaticResource TextDim}"
+                                   VerticalAlignment="Bottom" Margin="14,0,14,12" />
+                        <StackPanel>
+                            <TextBlock Text="KONIEC" Foreground="{StaticResource TextDim}" FontSize="10.5" FontWeight="SemiBold" Margin="2,0,0,4" />
+                            <StackPanel Orientation="Horizontal">
+                                <TextBox x:Name="EndBox" Style="{StaticResource TimeBox}" KeyDown="TimeBox_KeyDown" LostKeyboardFocus="TimeBox_LostFocus" />
+                                <Button Style="{StaticResource FlatButton}" Padding="10,9" Margin="6,0,0,0" Click="SetEnd_Click"
+                                        ToolTip="Ustaw koniec tam, gdzie jest odtwarzanie (O)">
+                                    <Path Data="M0,0 L11,0 L5.5,6 Z M4.75,5 L6.25,5 L6.25,16 L4.75,16 Z" Fill="{StaticResource TextMain}" Width="11" Height="16" Stretch="None" />
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                        <StackPanel Margin="22,0,0,0" MinWidth="96">
+                            <TextBlock Text="DŁUGOŚĆ" Foreground="{StaticResource TextDim}" FontSize="10.5" FontWeight="SemiBold" Margin="0,0,0,4" />
+                            <TextBlock x:Name="LengthText" Text="0,0 s" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Accent}" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <!-- export bar -->
+                <Border Grid.Row="4" Margin="0,16,0,0" Background="#CC1A1D24" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="12" Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="FORMAT" Foreground="{StaticResource TextDim}" FontSize="10.5" FontWeight="SemiBold" Margin="2,0,0,4" />
+                            <Border Background="#14171D" CornerRadius="9" Padding="2">
+                                <StackPanel x:Name="FormatPanel" Orientation="Horizontal" />
+                            </Border>
+                        </StackPanel>
+                        <CheckBox x:Name="FadeCheck" Grid.Column="1" Margin="22,18,0,0" VerticalAlignment="Center" Focusable="False"
+                                  ToolTip="Łagodne pogłośnienie na początku i ściszenie na końcu (do 1 s)">
+                            <TextBlock Text="Płynne wejście i wyjście (fade)" />
+                        </CheckBox>
+                        <Button x:Name="SaveButton" Grid.Column="3" Style="{StaticResource PrimaryButton}" Click="Save_Click" ToolTip="Ctrl+S">
+                            <Grid>
+                                <StackPanel x:Name="SaveLabel" Orientation="Horizontal">
+                                    <TextBlock Text="&#xE74E;" FontFamily="{StaticResource Icons}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                    <TextBlock Text="Zapisz fragment" />
+                                </StackPanel>
+                                <StackPanel x:Name="SavingLabel" Visibility="Collapsed" MinWidth="150">
+                                    <TextBlock x:Name="SavingText" Text="Zapisuję… 0%" HorizontalAlignment="Center" />
+                                    <ProgressBar x:Name="SaveProgress" Height="3" Margin="0,4,0,0" Maximum="1" Foreground="{StaticResource AccentText}" Background="#3B8F87" BorderThickness="0" />
+                                </StackPanel>
+                            </Grid>
+                        </Button>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Footer: shortcuts -->
+            <TextBlock x:Name="Footer" Grid.Row="2" Margin="0,12,0,0" FontSize="11.5" Foreground="#5F687A" HorizontalAlignment="Center" Visibility="Collapsed"
+                       Text="Spacja – odtwórz   ·   Home – na początek zaznaczenia   ·   I / O – początek / koniec   ·   T – przytnij   ·   Delete – usuń   ·   Ctrl+Z – cofnij   ·   kółko – zoom   ·   Ctrl+S – zapisz" />
+        </Grid>
+
+        <!-- Success toast -->
+        <Border x:Name="Toast" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,40" Padding="18,12"
+                CornerRadius="12" Background="#203330" BorderBrush="#2F6F68" BorderThickness="1" Visibility="Collapsed" Opacity="0">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.5" />
+            </Border.Effect>
+            <StackPanel Orientation="Horizontal">
+                <Border Width="26" Height="26" CornerRadius="13" Background="{StaticResource Accent}" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE73E;" FontFamily="{StaticResource Icons}" FontSize="13" Foreground="{StaticResource AccentText}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+                <StackPanel Margin="12,0,18,0" VerticalAlignment="Center">
+                    <TextBlock Text="Zapisano!" FontWeight="SemiBold" />
+                    <TextBlock x:Name="ToastText" Foreground="#A9C9C5" FontSize="12" MaxWidth="420" TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <Button Style="{StaticResource FlatButton}" Click="ShowInFolder_Click" Padding="12,6">
+                    <TextBlock Text="Pokaż w folderze" />
+                </Button>
+                <Button Style="{StaticResource FlatButton}" Click="PlaySaved_Click" Padding="12,6" Margin="6,0,0,0">
+                    <TextBlock Text="Odtwórz" />
+                </Button>
+                <Button Style="{StaticResource FlatButton}" Click="CloseToast_Click" Padding="9,6" Margin="6,0,0,0" Background="Transparent" BorderBrush="Transparent">
+                    <TextBlock Text="&#xE711;" FontFamily="{StaticResource Icons}" FontSize="11" />
+                </Button>
+            </StackPanel>
+        </Border>
+
+        <!-- Drag overlay -->
+        <Border x:Name="DragOverlay" Background="#D9111318" Visibility="Collapsed" IsHitTestVisible="False">
+            <Border Margin="24" CornerRadius="16" BorderBrush="{StaticResource Accent}" BorderThickness="2">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <TextBlock Text="&#xE896;" FontFamily="{StaticResource Icons}" FontSize="44" Foreground="{StaticResource Accent}" HorizontalAlignment="Center" />
+                    <TextBlock Text="Upuść, aby otworzyć" FontSize="22" FontWeight="SemiBold" Margin="0,16,0,0" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Border>
+    </Grid>
+</Window>

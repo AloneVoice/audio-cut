@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>AudioCut</AssemblyName>
+    <RootNamespace>AudioCut</RootNamespace>
+    <Version>1.0.0</Version>
+    <Product>AudioCut</Product>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <!-- Fluent theme (ThemeMode) is still flagged experimental -->
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
+
+    <!-- Single portable exe -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <SatelliteResourceLanguages>pl;en</SatelliteResourceLanguages>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio.WinMM" Version="2.2.1" />
+  </ItemGroup>
+
+  <!-- ffmpeg.exe (gzip) is embedded and unpacked to %LOCALAPPDATA% on first run.
+       build.ps1 prepares this file. -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\tools\ffmpeg.exe.gz" LogicalName="ffmpeg.exe.gz" Condition="Exists('..\..\tools\ffmpeg.exe.gz')" />
+    <Resource Include="app.ico" />
+  </ItemGroup>
+
+</Project>
